@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>Group Maker</title>
+		<link rel="preconnect" href="https://fonts.googleapis.com">
+		<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+		<link
+		href="https://fonts.googleapis.com/css2?family=Noto+Sans:ital,wght@0,100..900;1,100..900&display=swap"
+		rel="stylesheet">
+		<script>
+			var groups = []
+			
+			function init() {
+				document.getElementById("groupAddInput").addEventListener("keyup", function(e) {
+					if(e.keyCode == 13) {//enter
+						handleAddGroup();
+					}
+				});
+			}
+
+			function handleAddGroup() {
+				var name = document.getElementById("groupAddInput").value;
+				document.getElementById("groupAddInput").value = "";
+				if(name == "") name = "Group " + (document.getElementById("group-entry-pane-list").children.length + 1);
+				var pane = document.getElementById("group-entry-pane").cloneNode(true);
+				pane.innerHTML = name;
+				document.getElementById("group-entry-pane-list").appendChild(pane);
+				groups[groups.length] = name;
+			}
+
+			function handleRun() {
+				{
+					var node = document.getElementById("group-pane-list");
+					while(node.firstChild) {
+						node.removeChild(node.lastChild);
+					}
+				}
+				if(groups.length == 0) return;
+				var entries = document.getElementById("entryInput").value;
+				if(entries == "") return;
+				entries = entries.split('\n');
+				// shuffle entries
+				for(var i = entries.length - 1; i > 0; --i) {
+					var j = Math.floor(Math.random() * (i + 1));
+					var temp = entries[i];
+					entries[i] = entries[j];
+					entries[j] = temp;
+				}
+				var grouped_entries = [];
+				var remainder = entries.length % groups.length;
+				var pergroup = Math.floor(entries.length / groups.length);
+				for(var i = 0; i < remainder; ++i) {
+					grouped_entries[i] = entries.slice(i * (pergroup + 1), (i + 1) * (pergroup + 1));
+				}
+				var firstmax = remainder * (pergroup + 1);
+				for(var i = 0; i < groups.length - remainder; ++i) {
+					grouped_entries[i + remainder] = entries.slice(firstmax + i * pergroup, firstmax + (i + 1) * pergroup);
+				}
+				for(var i = 0; i < grouped_entries.length; ++i) {
+					var pane = document.getElementById("group-pane").cloneNode(true);
+					pane.querySelector("div[name=\"name\"]").innerHTML = groups[i];
+					console.log(groups[i]);
+					for(var j = 0; j < grouped_entries[i].length; ++j) {
+						var subpane = document.getElementById("group-sub-pane").cloneNode(true);
+						subpane.innerHTML = grouped_entries[i][j];
+						pane.querySelector("div[name=\"list\"]").appendChild(subpane);
+					}
+					document.getElementById("group-pane-list").appendChild(pane);
+				}
+			}
+		</script>
+		<style>
+			body {
+				background-color: #4d4d4d;
+			}
+
+			.element {
+				background-color: #2e2e2e;
+				color: #dfdfdf;
+				font-family: "Noto Sans";
+				font-size: 14px;
+				box-shadow: 0px 4px #1d1d1d;
+				border: none;
+				border-radius: 4px;
+				resize: none;
+				outline: none;
+			}
+
+			.subelement {
+				background-color: #1f1f1f;
+				box-shadow: 0px 4px #0f0f0f;
+				border-radius: 4px;
+			}
+
+			.no-scrollbar {
+				-ms-overflow-style: none;
+				scrollbar-width: none;
+			}
+
+			.no-scrollbar::-webkit-scrollbar {
+				display: none;
+			}
+		</style>
+	</head>
+	<body onload="init()" style="margin: 0; padding: 0; overflow-y: hidden;">
+		<div id="prefabs" hidden="true">
+			<div class="subelement" id="group-entry-pane" style="margin: 4px 4px
+			8px 4px; width: calc(100% - 8px); height: 40px; display: flex;
+			flex-direction: row;
+			align-items: center; justify-content: center;">
+				<div></div>
+			</div>
+			<div class="subelement" id="group-pane" style="margin: 4px 4px 8px 4px; padding:
+				4px 0px 0px 0px; width: calc(100% - 8px); display: flex; flex-direction: column;
+				align-items:
+				center; justify-content: center;">
+					<div name="name" style="height: 20px;">Group name</div>
+					<div name="list" id="group-sub-pane-list" class="element" style="margin: 8px; padding: 0px 0px
+					4px 0px; width:
+					90%; display: flex;
+					flex-direction: row; flex-wrap: wrap; justify-content:
+					center;">
+					</div>
+				</div>
+			<div class="subelement" id="group-sub-pane" style="margin: 4px; padding: 4px; height: 20px;"></div>
+		</div>
+		<div style="margin: 10px; padding: 0px; display: flex; flex-direction: row;">
+			<textarea id="entryInput" class="element no-scrollbar" style="margin: 0; margin-right: 10px; padding: 5px; width: 20%;
+			height: calc(100vh - 34px);" placeholder="Enter names..."></textarea>
+			<div style="display: flex; flex-direction: column; width: 20%;
+			height: calc(100vh - 20px);">
+				<ul class="element no-scrollbar" id="group-entry-pane-list" style="width: 100%; height: calc(100% -
+				36px); margin: 0; padding: 0; list-style-type: none; overflow-y:
+				scroll;">
+				</ul>
+				<div style="display: flex; flex-direction: row; margin-top: 12px;
+				height: 20px">
+					<input type="text" id="groupAddInput" class="element" style="padding: 4px; width:
+					calc(100% - 44px); height: calc(100% - 8px);"
+					placeholder="Group name...">
+					<button class="element" style="margin-left: 8px; width:
+					40px; padding: 4px;
+					height: 100%; line-height: 0;" onclick="handleAddGroup()">Add</button>
+				</div>
+			</div>
+			<div style="margin: 0px 0px 0px 8px; padding: 0; height: calc(100vh -
+			26px); display: flex; flex-direction: column; justify-content: center;">
+				<button class="element" style="margin: 0; padding: 0; width:
+				40px; height: 40px;" onclick="handleRun()">></button>
+			</div>
+			<div class="element no-scrollbar" id="group-pane-list" style="margin: 0px 0px 0px 8px; padding: 0;
+			width: calc(60% - 76px); height:
+			calc(100vh - 24px); overflow-y: scroll;">
+			</div>
+		</div>
+	</body>
+</html>

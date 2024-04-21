@@ -23,9 +23,15 @@
 				document.getElementById("groupAddInput").value = "";
 				if(name == "") name = "Group " + (document.getElementById("group-entry-pane-list").children.length + 1);
 				var pane = document.getElementById("group-entry-pane").cloneNode(true);
+				pane.index = groups.length
 				pane.innerHTML = name;
 				document.getElementById("group-entry-pane-list").appendChild(pane);
 				groups[groups.length] = name;
+			}
+
+			function handleRemoveGroup(node) {
+				groups.splice(node.index, 1);
+				node.remove();
 			}
 
 			function handleRun() {
@@ -107,14 +113,13 @@
 			<div class="subelement" id="group-entry-pane" style="margin: 4px 4px
 			8px 4px; width: calc(100% - 8px); height: 40px; display: flex;
 			flex-direction: row;
-			align-items: center; justify-content: center;">
-				<div></div>
+			align-items: center; justify-content: center;" onclick="handleRemoveGroup(this)">
 			</div>
 			<div class="subelement" id="group-pane" style="margin: 4px 4px 8px 4px; padding:
 				4px 0px 0px 0px; width: calc(100% - 8px); display: flex; flex-direction: column;
 				align-items:
 				center; justify-content: center;">
-					<div name="name" style="height: 20px;">Group name</div>
+					<div name="name" style="height: 20px;"></div>
 					<div name="list" id="group-sub-pane-list" class="element" style="margin: 8px; padding: 0px 0px
 					4px 0px; width:
 					90%; display: flex;
